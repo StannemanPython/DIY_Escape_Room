@@ -30,10 +30,10 @@ def soup():
 def pomodoro():
     print("The Escape Room starts now. Find the 4 digits of the pincode. Write the digits in order from lowest to highest. You only have 3 tries")
     secret_code = "3389"
-    error = 0   
-    with threading.Lock(): 
+    error = 0
+    with Lock(): 
         while error != 3:
-            print("\n \033[A" + " Enter the pin here: ")
+            print("\n Enter the pin here: ")
             code = input("\n")
             if code == secret_code:
                 print("You managed to stop the mutation and escaped! You won!")
