@@ -2,69 +2,53 @@ import time
 from datetime import timedelta, datetime
 from threading import *
 import subprocess, sys
-import curses
+import threading
 
-#countdown is tihe start of the timer so that I can let the guests of
 # the escape room know that the escape room is about to start.
 
-def countdown(t):
-    while t:  # while t > 0 for clarity
-        mins = t // 60
-        secs = t % 60
-        timer = '{:02d}:{:02d}'.format(mins, secs)
-        print(timer, end="\r")  # overwrite previous line
-        time.sleep(1)
-        t -= 1
-    print('Blast Off!!!')
-
-
-t = input("Enter the time in seconds: ")
-
-countdown(int(t))
-
-
+global_game_time = 6*60 
 #soup is the countdown timer that has to run
 def soup():
-    t = 6 * 60
-    while t:
-        mins = t // 60
-        secs = t % 60
+    global global_game_time
+    local_game_copy = global_game_time
+    while local_game_copy:
+        mins = local_game_copy // 60
+        secs = local_game_copy % 60
         timer = '{:02d}:{:02d}'.format(mins, secs)
-        print(timer, end="\r", flush=True) # overwrite previous line
+        print("\033[A" + timer)
+        #print(timer,end="\r")
         time.sleep(1)
-        t -= 1
-        if t == 0:
+        local_game_copy -= 1
+        global_game_time -= 1
+        if local_game_copy == 0:
             break
     print("You took too much time! You lose!")
     time.sleep(60)
     
 
-
-
 #pomodora is the PIN input with the different WIN and LOSE returns
 def pomodoro():
     print("The Escape Room starts now. Find the 4 digits of the pincode. Write the digits in order from lowest to highest. You only have 3 tries")
     secret_code = "3389"
-    error = 0
-    while error != 3:
-        print("\n Enter the pin here: ", end="\r")
-        code = input()
-        if code == secret_code:
-            print("You managed to stop the mutation and escaped! You won!")
-            time.sleep(60)
-            exit()
-        else:
-            print("That's not the right code!")
-            error += 1
-        
+    error = 0   
+    with threading.Lock(): 
+        while error != 3:
+            print("\n \033[A" + " Enter the pin here: ")
+            code = input("\n")
+            if code == secret_code:
+                print("You managed to stop the mutation and escaped! You won!")
+                time.sleep(60)
+                threading.Release()
+                return True
+            else:
+                print("That's not the right code!")
+                error += 1
     print("You took too many tries! You lose!")
     time.sleep(60)
     return False
-    #print(f"You only have {allotted_time - time_taken} time left!")
 
 t1 = Thread(target=soup)
 t2 = Thread(target=pomodoro)
 t1.start() #Calls first function
-t2.start() #Calls second function to run at same time
+t2.start()
 
-    
