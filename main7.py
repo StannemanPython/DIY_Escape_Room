@@ -6,10 +6,11 @@ window.title("Escape Room")
 window.geometry("500x400")
 
 #soup is the countdown timer that has to run
-def soup():
+def soup(event):
   for i in range(4):
     t = 90*60
-    while t:
+    while t and not get_event():
+      print(event)
       mins = t // 60
       secs = t % 60
       timer = '{:02d}:{:02d}'.format(mins, secs)
@@ -27,6 +28,10 @@ def soup():
 def only_numbers(char):
     return char.isdigit()
 
+def get_event():
+    global event
+    return  event
+
 error = 0
 #pomodora is the PIN input with the different WIN and LOSE returns
 def tomato():
@@ -42,7 +47,9 @@ def tomato():
         my_entry.destroy()
         my_label2.destroy()
         my_label3b.destroy()
-        threading.Thread(target=soup).stop()
+        global event
+        event = True
+        
     if error == 3:
         my_label3b.config(text="You took too many tries! You lose!", fg="red", font=("Calibri", "24", "bold"))
         my_button.destroy()
@@ -73,7 +80,8 @@ my_entry.place(x=520, y=100)
 my_button = Button(window, text="Check PIN", font=("Calibri", "10"), command=tomato)
 my_button.place(x=650, y=95)
 
-threading.Thread(target=soup).start()
+event = False
+threading.Thread(target=soup,args=(event,)).start()
 
 window.mainloop()
 
